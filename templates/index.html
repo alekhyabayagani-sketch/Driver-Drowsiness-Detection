@@ -1,0 +1,817 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriveSafe | Driver Monitoring</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #080f1e;
+    --panel: #111d31;
+    --panel-light: #172640;
+    --border: #253650;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --blue: #38bdf8;
+    --green: #34d399;
+    --red: #fb7185;
+    --yellow: #fbbf24;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 5%;
+    background: #0d1729;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #0284c7, #4f46e5);
+    font-size: 25px;
+}
+
+.brand h1 {
+    font-size: 23px;
+    letter-spacing: .3px;
+}
+
+.brand p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--green);
+    background: #0b2b2b;
+    border: 1px solid #155e55;
+    border-radius: 30px;
+    padding: 10px 15px;
+    font-size: 13px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 32px 5%;
+}
+
+.welcome {
+    margin-bottom: 25px;
+}
+
+.welcome h2 {
+    font-size: clamp(24px, 3vw, 32px);
+    margin-bottom: 9px;
+}
+
+.welcome p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.metric-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 23px;
+    min-width: 0;
+    transition: transform .2s, border-color .2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    border-color: #3b5878;
+}
+
+.metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.metric-label {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.metric-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    background: #1c3655;
+}
+
+.metric-value {
+    font-size: clamp(23px, 3vw, 31px);
+    font-weight: 700;
+    margin-top: 17px;
+    overflow-wrap: anywhere;
+}
+
+.metric-note {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(260px, .8fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    overflow: hidden;
+    margin-bottom: 22px;
+}
+
+.panel-header {
+    padding: 19px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.panel-header h3 {
+    font-size: 17px;
+}
+
+.panel-header p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.camera-wrap {
+    background: #050a12;
+    padding: 12px;
+}
+
+#camera {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    border-radius: 10px;
+    background: #050a12;
+}
+
+.camera-placeholder {
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 25px;
+}
+
+.camera-placeholder .camera-icon {
+    font-size: 45px;
+}
+
+.camera-placeholder p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.camera-controls {
+    padding: 18px 20px 21px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+}
+
+button {
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 17px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s, transform .2s;
+}
+
+button:hover {
+    opacity: .88;
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-start {
+    color: #052e25;
+    background: var(--green);
+}
+
+.btn-stop {
+    color: white;
+    background: #be3650;
+}
+
+.btn-sound {
+    color: #e0f2fe;
+    background: #1d4ed8;
+}
+
+.status-box {
+    margin: 0 20px 20px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #0c1729;
+}
+
+.status-heading {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+#status {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--green);
+    overflow-wrap: anywhere;
+}
+
+#status.alert {
+    color: var(--red);
+}
+
+#status.warning {
+    color: var(--yellow);
+}
+
+#history {
+    list-style: none;
+    padding: 8px 20px 20px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+#history li {
+    padding: 12px;
+    margin-top: 9px;
+    background: #0c1729;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.history-empty {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 12px 0;
+}
+
+.info-content {
+    padding: 20px;
+}
+
+.info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-symbol {
+    width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #1c3655;
+    flex-shrink: 0;
+}
+
+.info-row h4 {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.info-row p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.footer-note {
+    text-align: center;
+    padding: 18px 10px 5px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+@media (max-width: 850px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 18px 5%;
+    }
+
+    .brand h1 {
+        font-size: 19px;
+    }
+
+    main {
+        padding-top: 24px;
+    }
+
+    .camera-controls button {
+        flex: 1 1 100%;
+    }
+
+    .metric-card {
+        padding: 18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <div class="logo">🛡️</div>
+        <div>
+            <h1>DriveSafe</h1>
+            <p>Driver Drowsiness Detection System</p>
+        </div>
+    </div>
+
+    <div class="live-badge">
+        <span class="dot"></span>
+        <span id="headerState">System Ready</span>
+    </div>
+</header>
+
+<main>
+    <section class="welcome">
+        <h2>Driver Monitoring Dashboard</h2>
+        <p>Monitor eye blinks and detect signs of driver drowsiness in real time.</p>
+    </section>
+
+    <section class="metrics">
+        <div class="metric-card">
+            <div class="metric-top">
+                <span class="metric-label">Monitoring Status</span>
+                <span class="metric-icon">📡</span>
+            </div>
+            <div class="metric-value" id="monitorStatus">Stopped</div>
+            <div class="metric-note">Live camera monitoring</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-top">
+                <span class="metric-label">Eye Blink Count</span>
+                <span class="metric-icon">👁️</span>
+            </div>
+            <div class="metric-value" id="blinkCount">0</div>
+            <div class="metric-note">Total detected blinks</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-top">
+                <span class="metric-label">Detection Status</span>
+                <span class="metric-icon">🔎</span>
+            </div>
+            <div class="metric-value" id="detectionStatus"
+                 style="font-size:21px;">Waiting</div>
+            <div class="metric-note">Current driver status</div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>Live Camera Feed</h3>
+                        <p>Real-time eye and face monitoring</p>
+                    </div>
+                    <div class="live-badge" id="cameraBadge">
+                        <span class="dot"></span>
+                        <span id="cameraState">Camera Off</span>
+                    </div>
+                </div>
+
+                <div class="camera-wrap">
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+                        <div class="camera-icon">📷</div>
+                        <strong>Camera is not running</strong>
+                        <p>Click Start Monitoring to begin driver detection.</p>
+                    </div>
+                    <img id="camera" alt="Live driver camera feed"
+                         style="display:none;">
+                </div>
+
+                <div class="camera-controls">
+                    <button class="btn-start" id="startButton"
+                            onclick="startMonitoring()">
+                        ▶ Start Monitoring
+                    </button>
+
+                    <button class="btn-stop" id="stopButton"
+                            onclick="stopMonitoring()" disabled>
+                        ■ Stop Monitoring
+                    </button>
+
+                    <button class="btn-sound" onclick="enableSound()">
+                        🔊 Enable Sound
+                    </button>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-heading">SYSTEM MESSAGE</div>
+                    <div id="status">Ready to start monitoring.</div>
+                </div>
+            </div>
+        </div>
+
+        <aside>
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>Alert History</h3>
+                        <p>Recent detection events</p>
+                    </div>
+                    <span class="metric-icon">🔔</span>
+                </div>
+
+                <ul id="history">
+                    <li class="history-empty" id="emptyHistory">
+                        No alerts recorded yet.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>System Information</h3>
+                        <p>Monitoring overview</p>
+                    </div>
+                </div>
+
+                <div class="info-content">
+                    <div class="info-row">
+                        <div class="info-symbol">👁️</div>
+                        <div>
+                            <h4>Eye Blink Analysis</h4>
+                            <p>Tracks eye activity to help identify signs of drowsiness.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-symbol">🚨</div>
+                        <div>
+                            <h4>Drowsiness Alert</h4>
+                            <p>Displays an alert when the detection system identifies possible drowsiness.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-symbol">🔊</div>
+                        <div>
+                            <h4>Audio Warning</h4>
+                            <p>Plays a warning sound when a drowsiness alert is detected, after sound is enabled.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <div class="footer-note">
+        DriveSafe · Real-Time Driver Drowsiness Detection Using Eye Blink Analysis
+        <br>
+        This is a prototype and should not replace certified vehicle safety systems.
+    </div>
+</main>
+
+<script>
+let soundEnabled = false;
+let audioContext = null;
+let buzzerTimer = null;
+let wasAlerting = false;
+let lastHistoryStatus = "";
+let monitoring = false;
+
+const camera = document.getElementById("camera");
+const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+const statusText = document.getElementById("status");
+const startButton = document.getElementById("startButton");
+const stopButton = document.getElementById("stopButton");
+
+function setMessage(message, type = "") {
+    statusText.textContent = message;
+    statusText.className = type;
+}
+
+function addHistory(message) {
+    const empty = document.getElementById("emptyHistory");
+    if (empty) empty.remove();
+
+    const item = document.createElement("li");
+    const time = new Date().toLocaleTimeString();
+    item.textContent = time + " — " + message;
+
+    const history = document.getElementById("history");
+    history.prepend(item);
+
+    while (history.children.length > 12) {
+        history.removeChild(history.lastElementChild);
+    }
+}
+
+function showCamera() {
+    cameraPlaceholder.style.display = "none";
+    camera.style.display = "block";
+    camera.src = "/video_feed?t=" + Date.now();
+    document.getElementById("cameraState").textContent = "Camera On";
+}
+
+function hideCamera() {
+    camera.removeAttribute("src");
+    camera.style.display = "none";
+    cameraPlaceholder.style.display = "flex";
+    document.getElementById("cameraState").textContent = "Camera Off";
+}
+
+async function startMonitoring() {
+    setMessage("Starting monitoring...", "warning");
+    startButton.disabled = true;
+
+    try {
+        const response = await fetch("/start");
+        if (!response.ok) throw new Error("Unable to start monitoring");
+
+        monitoring = true;
+        showCamera();
+
+        document.getElementById("monitorStatus").textContent = "Running";
+        document.getElementById("headerState").textContent = "Monitoring";
+        startButton.disabled = true;
+        stopButton.disabled = false;
+
+        setMessage("Monitoring started. Keep your face visible to the camera.");
+        addHistory("Monitoring started");
+    } catch (error) {
+        monitoring = false;
+        startButton.disabled = false;
+        setMessage("Could not start monitoring. Check the Flask server.", "alert");
+    }
+}
+
+async function stopMonitoring() {
+    try {
+        const response = await fetch("/stop");
+        if (!response.ok) throw new Error("Unable to stop monitoring");
+    } catch (error) {
+        setMessage("Could not stop monitoring. Check the Flask server.", "alert");
+        return;
+    }
+
+    monitoring = false;
+    stopBuzzer();
+    wasAlerting = false;
+    hideCamera();
+
+    document.getElementById("monitorStatus").textContent = "Stopped";
+    document.getElementById("headerState").textContent = "System Ready";
+    document.getElementById("detectionStatus").textContent = "Waiting";
+
+    startButton.disabled = false;
+    stopButton.disabled = true;
+
+    setMessage("Monitoring stopped.");
+    addHistory("Monitoring stopped");
+}
+
+async function enableSound() {
+    try {
+        const AudioContextClass =
+            window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            setMessage("Audio is not supported by this browser.", "alert");
+            return;
+        }
+
+        if (!audioContext) {
+            audioContext = new AudioContextClass();
+        }
+
+        if (audioContext.state === "suspended") {
+            await audioContext.resume();
+        }
+
+        soundEnabled = true;
+        playBeep();
+        setMessage("Sound enabled. Automatic buzzer is ready.");
+    } catch (error) {
+        setMessage("Could not enable sound. Please try again.", "alert");
+    }
+}
+
+function playBeep() {
+    if (!soundEnabled || !audioContext) return;
+
+    try {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "square";
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.12;
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.25);
+    } catch (error) {
+        console.log("Buzzer playback error:", error);
+    }
+}
+
+function startBuzzer() {
+    if (!soundEnabled || buzzerTimer !== null) return;
+
+    playBeep();
+    buzzerTimer = setInterval(playBeep, 900);
+}
+
+function stopBuzzer() {
+    if (buzzerTimer !== null) {
+        clearInterval(buzzerTimer);
+        buzzerTimer = null;
+    }
+}
+
+async function checkStatus() {
+    try {
+        const response = await fetch("/status");
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        document.getElementById("blinkCount").textContent =
+            data.blink_count ?? 0;
+
+        const detection = data.detection_status || "Waiting";
+        document.getElementById("detectionStatus").textContent = detection;
+
+        if (data.monitoring !== undefined) {
+            monitoring = Boolean(data.monitoring);
+        }
+
+        document.getElementById("monitorStatus").textContent =
+            monitoring ? "Running" : "Stopped";
+
+        document.getElementById("headerState").textContent =
+            monitoring ? "Monitoring" : "System Ready";
+
+        startButton.disabled = monitoring;
+        stopButton.disabled = !monitoring;
+
+        if (!monitoring) {
+            stopBuzzer();
+            wasAlerting = false;
+            setMessage(detection === "Monitoring stopped"
+                ? "Monitoring stopped."
+                : "Ready to start monitoring.");
+            statusText.className = "";
+            return;
+        }
+
+        if (detection === "DROWSINESS ALERT!") {
+            setMessage("DROWSINESS ALERT! Driver may be sleepy.", "alert");
+
+            if (!wasAlerting) {
+                addHistory("DROWSINESS ALERT detected");
+            }
+
+            wasAlerting = true;
+            startBuzzer();
+        } else {
+            stopBuzzer();
+            wasAlerting = false;
+
+            if (detection === "Eyes Closed") {
+                setMessage("Eyes closed. Monitoring carefully.", "warning");
+            } else if (detection === "Eyes Open") {
+                setMessage("Driver's eyes are open. Monitoring active.");
+            } else if (detection === "Face not detected") {
+                setMessage("Face not detected. Please face the camera.", "warning");
+            } else {
+                setMessage(detection);
+            }
+        }
+
+        if (detection !== lastHistoryStatus &&
+            detection !== "Eyes Open" &&
+            detection !== "Monitoring stopped" &&
+            detection !== "DROWSINESS ALERT!") {
+            if (detection === "Eyes Closed" ||
+                detection === "Face not detected") {
+                addHistory(detection);
+            }
+        }
+
+        lastHistoryStatus = detection;
+
+    } catch (error) {
+        // Temporary network errors are ignored while polling.
+    }
+}
+
+setInterval(checkStatus, 400);
+</script>
+
+</body>
+</html>

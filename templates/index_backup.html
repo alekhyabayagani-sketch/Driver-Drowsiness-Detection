@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Drowsiness Detection</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 700px;
+            margin: auto;
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        img {
+            width: 100%;
+            max-width: 600px;
+            background: black;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 22px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .start {
+            background: #22c55e;
+            color: white;
+        }
+
+        .stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        #status {
+            font-size: 18px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <h1>Driver Drowsiness Detection</h1>
+        <p>Real-Time Eye Blink Analysis</p>
+
+        <button class="start" onclick="startMonitoring()">
+            Start Monitoring
+        </button>
+
+        <button class="stop" onclick="stopMonitoring()">
+            Stop Monitoring
+        </button>
+
+        <p id="status">Monitoring is stopped</p>
+
+        <img id="camera" alt="Camera feed will appear here">
+    </div>
+
+    <script>
+        async function startMonitoring() {
+            try {
+                const response = await fetch("/start");
+                const data = await response.json();
+
+                document.getElementById("status").textContent = data.status;
+                document.getElementById("camera").src =
+                    "/video_feed?t=" + Date.now();
+            } catch (error) {
+                document.getElementById("status").textContent =
+                    "Could not start monitoring. Please try again.";
+            }
+        }
+
+        async function stopMonitoring() {
+            try {
+                await fetch("/stop");
+                document.getElementById("camera").removeAttribute("src");
+                document.getElementById("status").textContent =
+                    "Monitoring stopped";
+            } catch (error) {
+                document.getElementById("status").textContent =
+                    "Could not stop monitoring.";
+            }
+        }
+    </script>
+</body>
+</html>
